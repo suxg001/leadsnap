@@ -22,4 +22,6 @@ async function call(path,body,el){ const r=await fetch(path,{method:'POST',heade
 async function extract(){ await call('/api/extract',{url:document.getElementById('url').value},'out1'); }
 async function leads(){ const j=await call('/api/leads',{keyword:document.getElementById('kw').value,city:document.getElementById('city').value,limit:5},'out2'); lastLeads=j.data?.leads||[]; }
 function downloadCsv(){ const rows=[['name','address','lat','lon'],...lastLeads.map(l=>[l.name,l.address,l.lat,l.lon])]; const csv=rows.map(r=>r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='leads.csv'; a.click(); }
-</script></body></html>
+</script>
+<p style="color:#666;font-size:13px">线索数据 &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap 贡献者</a></p>
+</body></html>
