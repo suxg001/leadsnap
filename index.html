@@ -14,10 +14,9 @@
 <p>付费：<b>1 USDC（Base 链）= 100 条线索</b>。收款钱包（OKX）：<code id="wallet">0x84327ed4e013e8d0521b0f73431b66436b34e790</code> <button onclick="navigator.clipboard.writeText(document.getElementById('wallet').textContent)">复制地址</button></p>
 <p>⚠️ 只在 <b>Base</b> 链上付 USDC，别走别的链。付完把交易哈希贴下面核验：</p>
 <input id="tx" placeholder="0x… 交易哈希" style="width:70%"><button onclick="verify()">核验付款</button><pre id="out3"></pre></div>
-<div class="card"><h3>接口</h3><p>API Key 默认 <code>change-me</code>，部署时改环境变量 <code>API_KEY</code>。接口：<code>POST /api/extract</code>、<code>POST /api/leads</code>（header 带 <code>x-api-key</code>）；<code>GET /api/pay</code>（公开，返回收款信息）、<code>POST /api/pay/verify</code>（公开，凭 txHash 核验）。</p></div>
+<div class="card"><h3>接口</h3><p>接口公开，无需 API Key：<code>POST /api/extract</code>、<code>POST /api/leads</code>；<code>GET /api/pay</code>（公开，返回收款信息）、<code>POST /api/pay/verify</code>（公开，凭 txHash 核验）。</p></div>
 <script>
 async function verify(){ const r=await fetch('/api/pay/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({txHash:document.getElementById('tx').value})}); document.getElementById('out3').textContent=JSON.stringify(await r.json(),null,2); }
-<script>
 const KEY='change-me'; let lastLeads=[];
 async function call(path,body,el){ const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':KEY},body:JSON.stringify(body)}); const j=await r.json(); document.getElementById(el).textContent=JSON.stringify(j,null,2); return j; }
 async function extract(){ await call('/api/extract',{url:document.getElementById('url').value},'out1'); }
