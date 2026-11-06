@@ -1,4 +1,4 @@
-const { send, PAY } = require('../_lib');
+const { send, PAY, grantCredits, clientIp } = require('../_lib');
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return send(res, 405, { success: false, error: 'method not allowed' });
   const tx = String((req.body || {}).txHash || '').trim();
@@ -16,6 +16,8 @@ module.exports = async (req, res) => {
       && l.topics?.[2]?.toLowerCase() === toPadded
       && BigInt(l.data) >= BigInt(PAY.amount_usdc * 1000000));
     if (!ok) return send(res, 200, { success: false, error: 'no matching USDC transfer to this wallet on Base' });
-    return send(res, 200, { success: true, data: { paid: true, credits: PAY.credits, txHash: tx } });
+    const grant = await grantCredits(clientIp(req), tx, PAY.credits);
+    if (!grant.ok) return send(res, 200, { success: false, error: grant.reason });
+    return send(res, 200, { success: true, data: { paid: true, credits: PAY.credits, creditsTotal: grant.credits, txHash: tx } });
   } catch (e) { return send(res, 502, { success: false, error: `verify failed: ${e.message}` }); }
 };

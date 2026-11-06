@@ -1,8 +1,10 @@
-const { rateLimited, send } = require('./_lib');
+const { rateLimited, send, checkQuota, clientIp } = require('./_lib');
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return send(res, 405, { success: false, error: 'method not allowed' });
-  const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
+  const ip = clientIp(req);
   if (rateLimited(ip)) return send(res, 429, { success: false, error: 'rate limited, 60/min' });
+  const quota = await checkQuota(ip, 'leads');
+  if (!quota.allowed) return send(res, 429, { success: false, error: quota.reason });
   const input = req.body || {};
   const keyword = String(input.keyword || '').trim();
   const city = String(input.city || '').trim();
@@ -20,6 +22,6 @@ module.exports = async (req, res) => {
       address: x.display_name || '', lat: x.lat, lon: x.lon,
       type: x.type || '', category: x.category || '', source: 'OpenStreetMap Nominatim'
     }));
-    return send(res, 200, { success: true, data: { keyword, city, count: leads.length, leads }, meta: { source: 'OSM, not Google Maps scraping' } });
+    return send(res, 200, { success: true, data: { keyword, city, count: leads.length, leads }, meta: { source: 'OSM, not Google Maps scraping', quota } });
   } catch (e) { return send(res, 502, { success: false, error: `leads failed: ${e.message}` }); }
 };
