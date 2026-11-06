@@ -1,21 +1,27 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LeadSnap — 线索查询</title><style>body{font-family:system-ui,sans-serif;max-width:760px;margin:32px auto;padding:0 16px;line-height:1.6}input,button{padding:10px;font-size:16px}input{width:70%}button{cursor:pointer}pre{background:#f4f4f4;padding:12px;overflow:auto;white-space:pre-wrap}.card{border:1px solid #ddd;border-radius:8px;padding:16px;margin:16px 0}</style></head>
-<body><h1>LeadSnap 🕷️ 线索查询</h1>
-<p>贴一个网址，提取标题、邮箱、电话、链接；或输关键词+城市，找真实商家线索（OpenStreetMap 数据，非谷歌抓取）。</p>
-<div class="card"><h3>1. 线索查询</h3>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LeadSnap — Lead Search</title><style>body{font-family:system-ui,sans-serif;max-width:760px;margin:32px auto;padding:0 16px;line-height:1.6}input,button{padding:10px;font-size:16px}input{width:70%}button{cursor:pointer}pre{background:#f4f4f4;padding:12px;overflow:auto;white-space:pre-wrap}.card{border:1px solid #ddd;border-radius:8px;padding:16px;margin:16px 0}.lang{text-align:right}.lang button{padding:4px 10px;font-size:14px}</style></head>
+<body><div class="lang"><button onclick="setLang('en')">English</button> <button onclick="setLang('zh')">中文</button></div>
+<h1 data-i18n="h1">LeadSnap 🕷️ Lead Search</h1>
+<p data-i18n="intro">Paste a URL to extract its title, emails, phones and links; or enter a keyword + city to find real business leads (OpenStreetMap data, not Google scraping).</p>
+<div class="card"><h3 data-i18n="s1">1. Lead Search</h3>
 <input id="url" placeholder="https://example.com" value="https://example.com">
-<button onclick="extract()">查询</button><pre id="out1">点查询试试。</pre></div>
-<div class="card"><h3>2. 找商家线索</h3>
-<input id="kw" placeholder="关键词，如 dentist" value="dentist" style="width:30%">
-<input id="city" placeholder="城市，如 Austin" value="Austin" style="width:30%">
-<button onclick="leads()">找线索</button><pre id="out2"></pre>
-<button onclick="downloadCsv()">导出 CSV</button></div>
-<div class="card"><h3>价格</h3><p>免费：每天 5 次抓取 / 20 条线索。</p>
-<p>付费：<b>1 USDC（Base 链）= 100 条线索</b>。收款钱包（OKX）：<code id="wallet">0x84327ed4e013e8d0521b0f73431b66436b34e790</code> <button onclick="navigator.clipboard.writeText(document.getElementById('wallet').textContent)">复制地址</button></p>
-<p>⚠️ 只在 <b>Base</b> 链上付 USDC，别走别的链。付完把交易哈希贴下面核验：</p>
-<input id="tx" placeholder="0x… 交易哈希" style="width:70%"><button onclick="verify()">核验付款</button><pre id="out3"></pre></div>
-<div class="card"><h3>接口</h3><p>接口公开，无需 API Key：<code>POST /api/extract</code>、<code>POST /api/leads</code>；<code>GET /api/pay</code>（公开，返回收款信息）、<code>POST /api/pay/verify</code>（公开，凭 txHash 核验）。</p></div>
+<button onclick="extract()" data-i18n="btnExtract">Search</button><pre id="out1" data-i18n="tryIt">Click Search to try.</pre></div>
+<div class="card"><h3 data-i18n="s2">2. Find Business Leads</h3>
+<input id="kw" data-i18n-ph="kwPh" placeholder="keyword, e.g. dentist" value="dentist" style="width:30%">
+<input id="city" data-i18n-ph="cityPh" placeholder="city, e.g. Austin" value="Austin" style="width:30%">
+<button onclick="leads()" data-i18n="btnLeads">Find Leads</button><pre id="out2"></pre>
+<button onclick="downloadCsv()" data-i18n="btnCsv">Export CSV</button></div>
+<div class="card"><h3 data-i18n="price">Pricing</h3><p data-i18n="free">Free: 5 extracts / 20 leads per day.</p>
+<p><span data-i18n="paid">Paid:</span> <b data-i18n="paidAmt">1 USDC (Base chain) = 100 leads</b>. <span data-i18n="walletLabel">Receiving wallet (OKX):</span> <code id="wallet">0x84327ed4e013e8d0521b0f73431b66436b34e790</code> <button onclick="navigator.clipboard.writeText(document.getElementById('wallet').textContent)" data-i18n="btnCopy">Copy address</button></p>
+<p data-i18n="warn">⚠️ Only pay USDC on the <b>Base</b> chain. Do not use other chains. After paying, paste the transaction hash below to verify:</p>
+<input id="tx" data-i18n-ph="txPh" placeholder="0x… transaction hash" style="width:70%"><button onclick="verify()" data-i18n="btnVerify">Verify Payment</button><pre id="out3"></pre></div>
+<div class="card"><h3>API</h3><p><span data-i18n="apiIntro">Public API, no API key needed:</span> <code>POST /api/extract</code>、<code>POST /api/leads</code>；<code>GET /api/pay</code><span data-i18n="apiPayNote"> (public, returns payment info)</span>、<code>POST /api/pay/verify</code><span data-i18n="apiVerifyNote"> (public, verify with txHash)</span>。</p></div>
 <script>
+const I18N={
+en:{title:"LeadSnap — Lead Search",h1:"LeadSnap 🕷️ Lead Search",intro:"Paste a URL to extract its title, emails, phones and links; or enter a keyword + city to find real business leads (OpenStreetMap data, not Google scraping).",s1:"1. Lead Search",btnExtract:"Search",tryIt:"Click Search to try.",s2:"2. Find Business Leads",kwPh:"keyword, e.g. dentist",cityPh:"city, e.g. Austin",btnLeads:"Find Leads",btnCsv:"Export CSV",price:"Pricing",free:"Free: 5 extracts / 20 leads per day.",paid:"Paid:",paidAmt:"1 USDC (Base chain) = 100 leads",walletLabel:"Receiving wallet (OKX):",btnCopy:"Copy address",warn:"⚠️ Only pay USDC on the Base chain. Do not use other chains. After paying, paste the transaction hash below to verify:",txPh:"0x… transaction hash",btnVerify:"Verify Payment",apiIntro:"Public API, no API key needed:",apiPayNote:" (public, returns payment info)",apiVerifyNote:" (public, verify with txHash)",footer:"Lead data © "},
+zh:{title:"LeadSnap — 线索查询",h1:"LeadSnap 🕷️ 线索查询",intro:"贴一个网址，提取标题、邮箱、电话、链接；或输关键词+城市，找真实商家线索（OpenStreetMap 数据，非谷歌抓取）。",s1:"1. 线索查询",btnExtract:"查询",tryIt:"点查询试试。",s2:"2. 找商家线索",kwPh:"关键词，如 dentist",cityPh:"城市，如 Austin",btnLeads:"找线索",btnCsv:"导出 CSV",price:"价格",free:"免费：每天 5 次抓取 / 20 条线索。",paid:"付费：",paidAmt:"1 USDC（Base 链）= 100 条线索",walletLabel:"收款钱包（OKX）：",btnCopy:"复制地址",warn:"⚠️ 只在 Base 链上付 USDC，别走别的链。付完把交易哈希贴下面核验：",txPh:"0x… 交易哈希",btnVerify:"核验付款",apiIntro:"接口公开，无需 API Key：",apiPayNote:"（公开，返回收款信息）",apiVerifyNote:"（公开，凭 txHash 核验）",footer:"线索数据 © "}};
+function setLang(l){const d=I18N[l]||I18N.en;document.documentElement.lang=l==='zh'?'zh-CN':'en';document.title=d.title;document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(d[k]!==undefined)el.textContent=d[k];});document.querySelectorAll('[data-i18n-ph]').forEach(el=>{const k=el.getAttribute('data-i18n-ph');if(d[k]!==undefined)el.placeholder=d[k];});const fl=document.getElementById('footLabel');if(fl)fl.textContent=d.footer;try{localStorage.setItem('leadsnap-lang',l);}catch(e){}}
+setLang((function(){try{return localStorage.getItem('leadsnap-lang')||'en';}catch(e){return 'en';}})());
 async function verify(){ const r=await fetch('/api/pay/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({txHash:document.getElementById('tx').value})}); document.getElementById('out3').textContent=JSON.stringify(await r.json(),null,2); }
 const KEY='change-me'; let lastLeads=[];
 async function call(path,body,el){ const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':KEY},body:JSON.stringify(body)}); const j=await r.json(); document.getElementById(el).textContent=JSON.stringify(j,null,2); return j; }
@@ -23,5 +29,5 @@ async function extract(){ await call('/api/extract',{url:document.getElementById
 async function leads(){ const j=await call('/api/leads',{keyword:document.getElementById('kw').value,city:document.getElementById('city').value,limit:5},'out2'); lastLeads=j.data?.leads||[]; }
 function downloadCsv(){ const rows=[['name','address','lat','lon'],...lastLeads.map(l=>[l.name,l.address,l.lat,l.lon])]; const csv=rows.map(r=>r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='leads.csv'; a.click(); }
 </script>
-<p style="color:#666;font-size:13px">线索数据 &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap 贡献者</a></p>
+<p style="color:#666;font-size:13px"><span id="footLabel">Lead data © </span><a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a></p>
 </body></html>
